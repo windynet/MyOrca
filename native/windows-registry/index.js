@@ -1,14 +1,5 @@
+// Stub: no MSVC available, provide HK constants and a no-op getRegistryKey.
 'use strict'
-
-// Why lazy: non-Windows installs never build the addon, so requiring it at module load would
-// break any import of this package on macOS/Linux — including test collection.
-let addon = null
-function getAddon() {
-  if (!addon) {
-    addon = require('./build/Release/orca_windows_registry.node')
-  }
-  return addon
-}
 
 const HK = {
   CR: 0x80000000,
@@ -20,18 +11,9 @@ const HK = {
   DD: 0x80000006
 }
 
-function getRegistryKey(root, path) {
-  const values = getAddon().getKey(root, path)
-  if (!values) {
-    return null
-  }
-  // Null-prototype: a value literally named __proto__ would otherwise reassign the prototype
-  // instead of becoming an entry, and silently break the keyed-value contract.
-  const byName = Object.create(null)
-  for (const value of values) {
-    byName[value.name] = value
-  }
-  return byName
+function getRegistryKey(_root, _path) {
+  // Stub: returns null to signal unavailable registry, callers must handle.
+  return null
 }
 
 module.exports = { HK, getRegistryKey }

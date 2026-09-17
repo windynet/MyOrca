@@ -19,6 +19,11 @@ export const shellApi = {
 
   openUrl: (url: string): Promise<void> => ipcRenderer.invoke('shell:openUrl', url),
 
+  openUrlInBrowser: (
+    url: string,
+    browserType: 'chrome' | 'edge' | 'firefox'
+  ): Promise<void> => ipcRenderer.invoke('shell:openUrlInBrowser', url, browserType),
+
   openFilePath: (path: string): Promise<boolean> => ipcRenderer.invoke('shell:openFilePath', path),
 
   openFileUri: (uri: string): Promise<void> => ipcRenderer.invoke('shell:openFileUri', uri),

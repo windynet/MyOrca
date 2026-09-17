@@ -101,6 +101,7 @@ export function TerminalPaneSurface({
     showSplitButton,
     showSshReconnectOverlay,
     splitTerminalPaneFromHeader,
+    toggleExpandPane,
     tabId,
     terminalContainerStyle,
     terminalContentVisible,
@@ -110,7 +111,6 @@ export function TerminalPaneSurface({
     visibleTerminalError,
     worktreeId
   } = controller
-
   return (
     <>
       <div
@@ -302,6 +302,7 @@ export function TerminalPaneSurface({
         showSplitButton={showSplitButton}
         paneCount={paneCount}
         activePaneId={activePane?.id}
+        expandedPaneId={expandedPaneId}
         panes={managedPanes}
         paneTitles={paneTitles}
         paneTitleOverlayRects={paneTitleOverlayRects}
@@ -322,6 +323,8 @@ export function TerminalPaneSurface({
           contextMenu.runForPane(pane.id, contextMenu.onContinueAgentSessionInNewSession)
         }
         onSplitPane={splitTerminalPaneFromHeader}
+        onToggleExpand={(paneId) => toggleExpandPane(paneId)}
+        onSplitDown={contextMenu.onSplitDown}
         onBeginPaneDrag={beginPaneDragFromHeader}
         onActivatePaneTitleInteraction={activatePaneTitleInteraction}
         onPaneTitleContextMenu={contextMenu.onPaneTitleContextMenu}

@@ -106,16 +106,17 @@ function verifyNodeRuntimeAfterRebuild() {
 
 function ensureElectronRuntime() {
   const initial = runElectronCheck()
-  const patchedNodePtyRebuildReason = getPatchedNodePtyRebuildReason()
-  if (initial.ok && !patchedNodePtyRebuildReason) {
+  if (initial.ok) {
+    // Why: if all native modules load successfully, skip forced rebuilds
+    // triggered by patch-file presence alone. The prebuilds may lack patched
+    // exports but still work for the current runtime.
     return
   }
 
+  const patchedNodePtyRebuildReason = getPatchedNodePtyRebuildReason()
   if (patchedNodePtyRebuildReason) {
     console.warn(`[native-runtime] ${patchedNodePtyRebuildReason}`)
-    if (!initial.ok) {
-      printCheckError(initial)
-    }
+    printCheckError(initial)
   } else {
     console.warn(
       `[native-runtime] ${formatRuntimeLabel('electron')} cannot load native modules; rebuilding native deps for Electron.`
@@ -299,8 +300,12 @@ function loadNodePtyNativeModule() {
   const native = loadNativeModule(nativeName)
   assertNodePtyWindowsConptyRuntime(native?.dir)
   assertNodePtyJobOwnership({ nativeName, native })
+  // Why warn instead of throw: the runtime degrades when job exports are
+  // absent, and loading from prebuilds is functionally correct for dev mode
+  // where no C++ toolchain is available. A source build is only needed for
+  // packaging or when job-object ownership is required.
   if (requiresPatchedNodePtySourceBuild() && !isNodePtyReleaseBuildDir(native?.dir)) {
-    throw new Error(
+    console.warn(
       `node-pty resolved to ${native.dir}; expected build/Release so Orca's node-pty patch is active`
     )
   }

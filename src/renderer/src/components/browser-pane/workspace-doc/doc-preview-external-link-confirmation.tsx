@@ -17,7 +17,7 @@ function displayHost(url: string): string {
 
 async function openConfirmedExternalLink(url: string): Promise<void> {
   try {
-    const opened = await useAppStore.getState().openBrowserProfileTabInActiveWorkspace(url, null)
+    const opened = await useAppStore.getState().openBrowserProfileTabInActiveWorkspace(url, null, undefined)
     if (opened) {
       return
     }

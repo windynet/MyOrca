@@ -17,6 +17,7 @@ export type ShellApi = {
     request: ShellOpenExternalEditorRequest
   ) => Promise<ShellOpenExternalEditorResult>
   openUrl: (url: string) => Promise<void>
+  openUrlInBrowser: (url: string, browserType: 'chrome' | 'edge' | 'firefox') => Promise<void>
   openFilePath: (path: string) => Promise<boolean>
   openFileUri: (uri: string) => Promise<void>
   pathsExist?: (paths: string[]) => Promise<boolean[]>

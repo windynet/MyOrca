@@ -3,6 +3,11 @@ import { ipcMain, shell, dialog } from 'electron'
 import { constants, copyFile, readFile, stat } from 'node:fs/promises'
 import { basename, extname, isAbsolute, normalize, posix, win32 } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { spawnProcess } from '../../shared/child-process/run-process'
+import {
+  isBrowserExecutableKind,
+  resolveBrowserExecutable
+} from '../browser-executable-resolution'
 import type {
   ShellOpenExternalEditorRequest,
   ShellOpenExternalEditorResult,
@@ -168,6 +173,49 @@ export function registerShellHandlers(store: Store): void {
 
     return shell.openExternal(parsed.toString())
   })
+
+  ipcMain.handle(
+    'shell:openUrlInBrowser',
+    async (_event, rawUrl: string, rawBrowserType: unknown) => {
+      let parsed: URL
+      try {
+        parsed = new URL(rawUrl)
+      } catch {
+        return
+      }
+
+      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+        return
+      }
+
+      const url = parsed.toString()
+
+      // Why whitelisted: browserType arrives from the renderer and names the
+      // program we execute, so an unrecognised value must not reach a spawn.
+      if (isBrowserExecutableKind(rawBrowserType)) {
+        const executable = await resolveBrowserExecutable(rawBrowserType)
+        if (executable !== null) {
+          try {
+            // Why detached + unref: the browser outlives Orca, and its exit must
+            // not hold the app's event loop open on quit.
+            spawnProcess({
+              program: executable,
+              args: [url],
+              detached: true,
+              stdio: 'ignore'
+            }).unref()
+            return { ok: true } as const
+          } catch {
+            // fall through to the system default
+          }
+        }
+      }
+
+      // Fallback: the requested browser is not installed, so hand the URL to the
+      // system default rather than doing nothing at all.
+      return shell.openExternal(url)
+    }
+  )
 
   ipcMain.handle('shell:openFilePath', async (_event, filePath: string): Promise<boolean> => {
     return openWithSystemDefault(filePath)

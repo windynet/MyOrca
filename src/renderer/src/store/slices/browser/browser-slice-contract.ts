@@ -44,6 +44,8 @@ export type CreateBrowserTabOptions = {
   browserRuntimeEnvironmentId?: string | null
   /** Creates a page that shows a workspace document instead of a URL. */
   docLocation?: BrowserPageDocLocation
+  /** Specifies which browser to use — `"orca"`, `"google"`, `"edge"`. */
+  browserType?: 'orca' | 'google' | 'edge'
 }
 
 export type CreateBrowserPageOptions = {
@@ -135,10 +137,11 @@ export type BrowserSlice = {
     options?: CreateBrowserTabOptions
   ) => BrowserWorkspace
   openNewBrowserTabInActiveWorkspace: (groupId: string) => Promise<void>
-  /** `profileId: null` uses the workspace default profile. */
+  /** `profileId: null` uses the workspace default profile. `browserType` selects the browser. */
   openBrowserProfileTabInActiveWorkspace: (
     url: string,
-    profileId: string | null
+    profileId: string | null,
+    browserType?: 'orca' | 'google' | 'edge'
   ) => Promise<boolean>
   closeBrowserTab: (tabId: string, options?: { reason?: 'cleanup' }) => void
   shutdownWorktreeBrowsers: (worktreeId: string) => Promise<void>

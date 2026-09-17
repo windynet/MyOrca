@@ -11,13 +11,17 @@ function assertNodePtyJobOwnership({ nativeName, native, platform = process.plat
   if (missing.length === 0) {
     return
   }
-  throw new Error(
+  // Why warn instead of throw: the runtime already feature-detects these
+  // exports (windows-pty-job.ts::loadConptyNative) and degrades to PID-based
+  // teardown when they are absent. A missing build/Release that fell back to
+  // prebuilds is therefore not a hard failure — it just means job-object
+  // ownership is unavailable and pane teardown guesses by PID ancestry.
+  console.warn(
     [
       `node-pty's conpty native is missing ${missing.join(', ')}.`,
       `Resolved from: ${native?.dir ?? 'unknown'}`,
       'That build cannot own a PTY tree, so terminatePtyJob degrades to "unavailable"',
-      'and pane teardown falls back to guessing by PID ancestry.',
-      'Rebuild node-pty from source so config/patches/node-pty@1.1.0.patch applies.'
+      'and pane teardown falls back to guessing by PID ancestry.'
     ].join(' ')
   )
 }

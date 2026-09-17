@@ -91,27 +91,32 @@ restoreNodePtyWindowsConptyRuntime()
 
 const patchedNodePtyRebuildReason = forceRebuild ? null : getPatchedNodePtyRebuildReason()
 
+// Why: independent probes avoid rebuilding healthy Windows DLLs that may already be loaded and locked.
+// Even when patch artifacts exist, skip rebuild if modules load successfully.
+const probes = onlyModules.map((moduleName) => ({
+  moduleName,
+  result: probeElectronNativeModules([moduleName])
+}))
+modulesToRebuild = probes.filter(({ result }) => !result.ok).map(({ moduleName }) => moduleName)
+if (modulesToRebuild.length === 0) {
+  if (patchedNodePtyRebuildReason) {
+    console.log(`[rebuild] ${patchedNodePtyRebuildReason}, but modules load successfully; skipping.`)
+  }
+  console.log('[rebuild] Native modules already load in Electron; skipping rebuild.')
+  process.exit(0)
+}
+
 if (patchedNodePtyRebuildReason) {
   console.log(`[rebuild] ${patchedNodePtyRebuildReason}`)
 } else if (!forceRebuild) {
-  // Why: independent probes avoid rebuilding healthy Windows DLLs that may already be loaded and locked.
-  const probes = onlyModules.map((moduleName) => ({
-    moduleName,
-    result: probeElectronNativeModules([moduleName])
-  }))
-  modulesToRebuild = probes.filter(({ result }) => !result.ok).map(({ moduleName }) => moduleName)
-  if (modulesToRebuild.length === 0) {
-    console.log('[rebuild] Native modules already load in Electron; skipping rebuild.')
-    process.exit(0)
-  }
   console.log(`[rebuild] Rebuilding failed native modules: ${modulesToRebuild.join(', ')}`)
-  for (const { result } of probes) {
-    if (!result.ok && result.stderr.trim()) {
-      console.log(result.stderr.trim())
-    }
-  }
 } else {
   console.log(`[rebuild] Forcing native rebuild for ${rebuildPlatform}-${rebuildArch}.`)
+}
+for (const { result } of probes) {
+  if (!result.ok && result.stderr.trim()) {
+    console.log(result.stderr.trim())
+  }
 }
 
 // Why: cpu-features ships without `buildcheck.gypi`; its own `install` script

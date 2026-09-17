@@ -6,6 +6,7 @@ import RightSidebar from '../components/right-sidebar'
 import { RecoverableRenderErrorBoundary } from '../components/error-boundaries/RecoverableRenderErrorBoundary'
 import { FloatingTerminalToggleButton } from '../components/floating-terminal/FloatingTerminalToggleButton'
 import { TerminalWorkbenchContainer } from '../components/TerminalWorkbenchContainer'
+import LauncherBar from '../components/launcher/LauncherBar'
 import type { VirtualizedScrollAnchor } from '../hooks/useVirtualizedScrollAnchor'
 import { TitlebarLeftControls } from './TitlebarLeftControls'
 import { RightSidebarToggle, TitlebarMainStrip } from './TitlebarMainStrip'
@@ -243,6 +244,8 @@ export function AppWorkspaceShell(props: {
             <RightSidebar />
           </RecoverableRenderErrorBoundary>
         ) : null}
+        {/* Launcher bar — sits on the far right edge, always. */}
+        <LauncherBar />
       </div>
     </RecoverableRenderErrorBoundary>
   )

@@ -47,7 +47,8 @@ export function createBrowserTabActions(
         options?.title,
         options?.browserRuntimeEnvironmentId,
         browserPageId,
-        options?.docLocation
+        options?.docLocation,
+        options?.browserType
       )
       if (!options?.browserRuntimeEnvironmentId && !options?.docLocation) {
         admitBrowserPageMount(page.id)
@@ -213,7 +214,7 @@ export function createBrowserTabActions(
       get().recordFeatureInteraction('browser-tab-created')
     },
 
-    openBrowserProfileTabInActiveWorkspace: async (url, profileId) => {
+    openBrowserProfileTabInActiveWorkspace: async (url, profileId, browserType) => {
       const state = get()
       const worktreeId = state.activeWorktreeId
       if (!worktreeId) {
@@ -249,6 +250,7 @@ export function createBrowserTabActions(
       get().createBrowserTab(worktreeId, url, {
         activate: true,
         sessionProfileId: profileId,
+        browserType,
         ...(runtimeEnvironmentId ? { browserRuntimeEnvironmentId: null } : {})
       })
       return true

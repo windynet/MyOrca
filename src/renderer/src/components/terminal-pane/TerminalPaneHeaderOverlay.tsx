@@ -1,7 +1,10 @@
 import type { CSSProperties, RefObject } from 'react'
 import {
+  Maximize2,
   MessageSquare,
   MessageSquarePlus,
+  Minimize2,
+  PanelBottomClose,
   SquareSplitVertical,
   SquareTerminal,
   X
@@ -55,6 +58,9 @@ type TerminalPaneHeaderOverlayProps = {
   canContinueAgentSessionInNewSession?: boolean
   onContinueAgentSessionInNewSession?: (pane: ManagedPane) => void
   onSplitPane: (pane: ManagedPane, direction: 'vertical' | 'horizontal') => void
+  onToggleExpand?: (paneId: number) => void
+  onSplitDown?: () => void
+  expandedPaneId?: number | null
   onBeginPaneDrag: (paneId: number, handle: HTMLElement, event: PointerEvent) => void
   onActivatePaneTitleInteraction: (paneId: number) => void
   onPaneTitleContextMenu: (event: React.MouseEvent<HTMLElement>, paneId: number) => void
@@ -93,6 +99,9 @@ export default function TerminalPaneHeaderOverlay({
   canContinueAgentSessionInNewSession,
   onContinueAgentSessionInNewSession,
   onSplitPane,
+  onToggleExpand,
+  onSplitDown,
+  expandedPaneId,
   onBeginPaneDrag,
   onActivatePaneTitleInteraction,
   onPaneTitleContextMenu,
@@ -337,6 +346,78 @@ export default function TerminalPaneHeaderOverlay({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" sideOffset={4}>
                         {splitRightLabel}
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : null}
+                  {showAlwaysOnHeaders && showSplitButton && onSplitDown ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
+                          className="pane-title-split-trigger"
+                          aria-label={translate(
+                            'auto.components.terminal.pane.TerminalContextMenu.98bccf4fa2',
+                            'Split Terminal Down'
+                          )}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            onSplitDown()
+                          }}
+                        >
+                          <PanelBottomClose className="size-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" sideOffset={4}>
+                        {translate(
+                          'auto.components.terminal.pane.TerminalContextMenu.98bccf4fa2',
+                          'Split Terminal Down'
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : null}
+                  {paneCount > 1 && showAlwaysOnHeaders && onToggleExpand ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
+                          className="pane-title-expand-trigger"
+                          aria-label={
+                            expandedPaneId !== null
+                              ? translate(
+                                  'auto.components.terminal.pane.TerminalContextMenu.df766809e0',
+                                  'Collapse Pane'
+                                )
+                              : translate(
+                                  'auto.components.terminal.pane.TerminalContextMenu.925f49f210',
+                                  'Expand Pane'
+                                )
+                          }
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            onToggleExpand(pane.id)
+                          }}
+                        >
+                          {expandedPaneId !== null ? (
+                            <Minimize2 className="size-3" />
+                          ) : (
+                            <Maximize2 className="size-3" />
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" sideOffset={4}>
+                        {expandedPaneId !== null
+                          ? translate(
+                              'auto.components.terminal.pane.TerminalContextMenu.df766809e0',
+                              'Collapse Pane'
+                            )
+                          : translate(
+                              'auto.components.terminal.pane.TerminalContextMenu.925f49f210',
+                              'Expand Pane'
+                            )}
                       </TooltipContent>
                     </Tooltip>
                   ) : null}

@@ -116,6 +116,8 @@ export type BrowserPage = {
   convertedFrom?: BrowserPageConversionOrigin | null
   /** Set on a page Back returned across a conversion to; Forward re-crosses it. */
   convertedTo?: BrowserPageConversionOrigin | null
+  /** Specifies which browser to use — `"orca"`, `"google"`, `"edge"`. Absent when using the default Orca browser. */
+  browserType?: 'orca' | 'google' | 'edge'
 }
 
 export type BrowserWorkspace = {
