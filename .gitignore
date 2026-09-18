@@ -137,6 +137,7 @@ docs/**
 !docs/reference/wsl-probe-failure-semantics.md
 !docs/reference/xterm-patch-regeneration.md
 !docs/reference/windows-build-pipeline.md
+!docs/reference/project-features.md
 
 # Stably CLI (only docs/ are tracked)
 .stably/*
